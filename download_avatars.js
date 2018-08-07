@@ -24,9 +24,27 @@ function getRepoContributors(repoOwner, repoName, cb) {
 
     request(options, function(err, res, body) {
       cb(err, body);
+      if (!err && res.statusCode ==200){
+        var info = JSON.parse(body);        // get the data from the url
+        console.log(info);
+        info.forEach(printAvatarUrl);
+      }
+      else {
+        console.log('Error');
+        console.log(body);
+      }
     });
+
+
+
   // ...
 }
+
+
+function printAvatarUrl(avatar){
+  console.log("Avatar Url:" + avatar['avatar_url']);
+}
+
 
 getRepoContributors("jquery", "jquery", function(err, result) {
   console.log("Errors:", err);
