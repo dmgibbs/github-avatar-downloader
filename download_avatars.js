@@ -1,7 +1,7 @@
 var request = require('request');
 var fs = require('fs');
-var tokenfile  = require('./secrets.js');
-var dir = "./avatars/";
+var tokenfile  = require('./secrets.js');   // references github secret token
+var dir = "./avatars/";           // pathname to be used to store images of avatars
 
 var args = process.argv.slice(2);  /* to capture command line arguments */
 var param1   = args[0];           // first command line arg.
@@ -20,32 +20,33 @@ function getRepoContributors(repoOwner, repoName, cb) {
     }
   };
 
-    if ((!param1) || (!param2)){
-      console.log("Please supply a valid reponame and/or valid contributor");
-      console.log("Eg.  node download_avatars jquery  jquery");
-      return;
-''  }
+  if ((!param1) || (!param2)){      // if either or or both arguments missing
+    console.log("Please supply a valid reponame and/or valid contributor");
+    console.log("Eg.  node download_avatars jquery  jquery");
+    return;                         // similar to an exit 0
+''}
 
-    request(options, function(err, res, body) {
-      cb(err, body);
-      if (!err && res.statusCode ==200){  // no errors and get was clean
-        var info = JSON.parse(body);     // build the array of JSON objects from the jquery call
-        if (!fs.existsSync(dir)){       // if directory doesnt exist
-         fs.mkdirSync(dir);            // make it
-        } else {
-            console.log("Directory already exists!");
+  request(options, function(err, res, body) {
+    cb(err, body);
+    if (!err && res.statusCode ==200){  // no errors and request successful
+      var info = JSON.parse(body);     // build the array of JSON objects from the jquery call
+      if (!fs.existsSync(dir)){       // if directory doesnt exist
+        fs.mkdirSync(dir);            // make it
+      } else {
+          console.log("Directory already exists!");   // prevents attemtping to recreate existing dir.
         }
-        info.forEach(printAvatarUrl);   // parse the JSON object, dumping each avatar to filesystem.
-      }
-      else {
-        console.log('Error');
-        console.log(body);
-      }
-    });
+        info.forEach(printAvatarUrl);   // parse the JSON object, exec callback fxn on each json object.
+    }
+    else {
+      console.log('Error');
+      console.log(body);
+    }
+  });
 }
 
 function downloadImageByUrl(url, filePath){
-
+// Using the URL provided , attempt to retrieve the contents and dump those contents to
+// the pathname supplied via "filepath"
   request.get(url)                                           // Note 1
        .on('error', function (err) {                         // Note 2
          throw err;
@@ -60,6 +61,8 @@ function downloadImageByUrl(url, filePath){
 }
 
 function printAvatarUrl(avatar){
+  // This function picks up the login and avatar_url fields from the JSON object passed in.
+  // calls uses this info. to generate a filename and directory
   var extension = ".jpg";
   var fpath = dir + avatar['login']+ extension;           // setup the directory using avatar info
   downloadImageByUrl(avatar['avatar_url'], fpath);        // send the url and filepath to download function
@@ -69,5 +72,3 @@ getRepoContributors(param1, param2, function(err, result) {  // call main routin
   console.log("Errors:", err);
   console.log("Result:", result);
 });
-
-//downloadImageByUrl("https://avatars2.githubusercontent.com/u/2741?v=3&s=466", "avatars/kvirani.jpg");
