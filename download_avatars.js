@@ -3,7 +3,9 @@ var fs = require('fs');
 var tokenfile  = require('./secrets.js');
 var dir = "./avatars/";
 
-// var args = process.argv.slice(2);  /* to capture command line arguments */
+var args = process.argv.slice(2);  /* to capture command line arguments */
+var param1   = args[0];           // first command line arg.
+var param2   = args[1];           // 2nd command line arg.
 
 console.log('Welcome to the GitHub Avatar Downloader!');
 
@@ -17,6 +19,12 @@ function getRepoContributors(repoOwner, repoName, cb) {
       'User-Agent'   : 'request'
     }
   };
+
+    if ((!param1) || (!param2)){
+      console.log("Please supply a valid reponame and/or valid contributor");
+      console.log("Eg.  node download_avatars jquery  jquery");
+      return;
+''  }
 
     request(options, function(err, res, body) {
       cb(err, body);
@@ -54,10 +62,10 @@ function downloadImageByUrl(url, filePath){
 function printAvatarUrl(avatar){
   var extension = ".jpg";
   var fpath = dir + avatar['login']+ extension;           // setup the directory using avatar info
-
   downloadImageByUrl(avatar['avatar_url'], fpath);        // send the url and filepath to download function
 }
-getRepoContributors("jquery", "jquery", function(err, result) {  // call main routine
+
+getRepoContributors(param1, param2, function(err, result) {  // call main routine
   console.log("Errors:", err);
   console.log("Result:", result);
 });
