@@ -20,15 +20,14 @@ function getRepoContributors(repoOwner, repoName, cb) {
 
     request(options, function(err, res, body) {
       cb(err, body);
-      if (!err && res.statusCode ==200){
-        var info = JSON.parse(body);        // get the data from the url
-        //console.log(info);
+      if (!err && res.statusCode ==200){  // no errors and get was clean
+        var info = JSON.parse(body);     // build the array of JSON objects from the jquery call
         if (!fs.existsSync(dir)){       // if directory doesnt exist
          fs.mkdirSync(dir);            // make it
         } else {
             console.log("Directory already exists!");
         }
-        info.forEach(printAvatarUrl);
+        info.forEach(printAvatarUrl);   // parse the JSON object, dumping each avatar to filesystem.
       }
       else {
         console.log('Error');
@@ -46,20 +45,19 @@ function downloadImageByUrl(url, filePath){
        .on('response', function (response) {                // Note 3
          console.log('Response Status Code: ', response.statusCode);
        })
-       .pipe(fs.createWriteStream(filePath))
+       .pipe(fs.createWriteStream(filePath))     // dump the contents to the filesystem
        .on('finish',function() {
          console.log('Download complete...');
        });
-
 }
 
 function printAvatarUrl(avatar){
   var extension = ".jpg";
-  var fpath = dir + avatar['login']+ extension;
+  var fpath = dir + avatar['login']+ extension;           // setup the directory using avatar info
 
-  downloadImageByUrl(avatar['avatar_url'], fpath);
+  downloadImageByUrl(avatar['avatar_url'], fpath);        // send the url and filepath to download function
 }
-getRepoContributors("jquery", "jquery", function(err, result) {
+getRepoContributors("jquery", "jquery", function(err, result) {  // call main routine
   console.log("Errors:", err);
   console.log("Result:", result);
 });
