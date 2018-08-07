@@ -1,19 +1,15 @@
 var request = require('request');
 var fs = require('fs');
-
 var tokenfile  = require('./secrets.js');
+var dir = "./avatars/";
 
 // var args = process.argv.slice(2);  /* to capture command line arguments */
-
-
 
 console.log('Welcome to the GitHub Avatar Downloader!');
 
 function getRepoContributors(repoOwner, repoName, cb) {
 
   var options = {
-    //repoName = "promises-exercises";
-    //repoOwner = "";
 
     url     : "https://api.github.com/repos/" + repoOwner + "/" + repoName + "/contributors",
     headers : {
@@ -26,7 +22,12 @@ function getRepoContributors(repoOwner, repoName, cb) {
       cb(err, body);
       if (!err && res.statusCode ==200){
         var info = JSON.parse(body);        // get the data from the url
-        console.log(info);
+        //console.log(info);
+        if (!fs.existsSync(dir)){       // if directory doesnt exist
+         fs.mkdirSync(dir);            // make it
+        } else {
+            console.log("Directory already exists!");
+        }
         info.forEach(printAvatarUrl);
       }
       else {
@@ -52,14 +53,15 @@ function downloadImageByUrl(url, filePath){
 
 }
 
-
 function printAvatarUrl(avatar){
-  console.log("Avatar Url:" + avatar['avatar_url']);
+  var extension = ".jpg";
+  var fpath = dir + avatar['login']+ extension;
+
+  downloadImageByUrl(avatar['avatar_url'], fpath);
 }
+getRepoContributors("jquery", "jquery", function(err, result) {
+  console.log("Errors:", err);
+  console.log("Result:", result);
+});
 
-//getRepoContributors("jquery", "jquery", function(err, result) {
-//  console.log("Errors:", err);
-//  console.log("Result:", result);
-//});
-
-downloadImageByUrl("https://avatars2.githubusercontent.com/u/2741?v=3&s=466", "avatars/kvirani.jpg");
+//downloadImageByUrl("https://avatars2.githubusercontent.com/u/2741?v=3&s=466", "avatars/kvirani.jpg");
